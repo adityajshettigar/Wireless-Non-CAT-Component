@@ -1,1 +1,1 @@
-Topic : Explainable Deep Learning for Trustworthy IoT Attack Detection 
+Topic : Scalable Security Architectures for Massive IoT and Wireless Networks
