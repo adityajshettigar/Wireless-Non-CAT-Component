@@ -1,271 +1,271 @@
-\documentclass[a4paper,fleqn]{cas-dc}
-\usepackage[numbers]{natbib}
+\documentclass[12pt]{article}
 
-\usepackage{mathtools}
-\usepackage{booktabs}
-\usepackage{flushend}
+% --------------------
+% Basic Packages
+% --------------------
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{setspace}
 \usepackage{graphicx}
-\usepackage{algorithm}
-\usepackage{algorithmic}
 \usepackage{amsmath}
 \usepackage{amssymb}
-\usepackage{tikz}
-\usepackage{subcaption}
+\usepackage{booktabs} 
+\usepackage{float}    
+\onehalfspacing
 
-\numberwithin{equation}{section}
+% --------------------
+% Title and Author
+% --------------------
+\title{Explainable Deep Learning for Trustworthy IoT Attack Detection: A Comprehensive Framework for Edge and Cloud Ecosystems}
+\author{Aditya J Shettigar}
+\date{}
 
 \begin{document}
-\let\WriteBookmarks\relax
-\def\floatpagepagefraction{1}
-\def\textpagefraction{.001}
+    \maketitle
+
+
+    % ==========================================
+    % SECTION 1: INTRODUCTION
+    % ==========================================
+    \section{Introduction}
+    The advent of the Internet of Things (IoT) has entirely transformed the architectural principles underlying modern-day connectivity into a pervasive system that involves seamless integration between the computing endpoints and the real-world environment. The resulting revolution has ushered in a new era marked by automation, constant interaction, and ambient intelligence. In today's residential settings, smart homes are fitted with numerous smart devices such as smart meters, intelligent thermostats, security cameras, and automated control systems. Likewise, industrial domains have been transformed by the Industrial Internet of Things (IIoT), whereby thousands of distributed sensors, PLCs, robotic assembly machines, and autonomous guided vehicles work together in perfect synchronicity. Both residential and industrial settings involve generation, processing, and transmission of an astronomical amount of mission-critical and highly sensitive data in real-time through LAN and cloud environments.
+
+    However, this exponential and largely unregulated expansion of the IoT ecosystem has inadvertently catalyzed a corresponding explosion in the cyber-attack surface. The proliferation of IoT devices is not merely quantitative but qualitative; endpoints now frequently possess kinetic actuation capabilities, meaning a digital breach can result in immediate physical consequences. The heterogeneous nature of IoT devices, coupled with their inherent resource constraints—such as limited processing power, restricted volatile memory, and finite energy reserves—often renders traditional cryptographic protocols and heavyweight perimeter defenses entirely unfeasible. Consequently, malicious actors frequently target these vulnerable endpoints to orchestrate devastating cyber-kinetic attacks. Threats such as volumetric Distributed Denial of Service (DDoS) campaigns, cryptojacking, ransomware, and stealthy reconnaissance operations are routinely executed by compromising weak IoT nodes and aggregating them into massive botnets, as historically evidenced by the catastrophic disruptions caused by the Mirai and BASHLITE malware strains \cite{nguyen2022explainable, siganos2023explainable}. The socio-economic impact of these breaches is profound, resulting in billions of dollars in operational downtime and compromised proprietary data.
+
+    In order to combat these increasingly advanced, highly distributed, and continuously evolving attack vectors, the cybersecurity model has shifted to include data-driven approaches to defend against cyber attacks. Deep learning (DL) has proven to be at the forefront of automated IDS techniques with an impressive ability to predict highly intricate, non-linear traffic patterns. As opposed to classic signature-based IDS techniques which are inherently blind to new attack types and conventional machine learning approaches which suffer with regard to feature selection and high dimensional space, deep neural network-based methods automatically derive hierarchical representations of the raw, highly dynamic nature of network flows. These systems can identify not only established attack signatures but also any zero-day attacks occurring due to deviations in packet inter-arrival times, payload changes, or protocol errors which cannot be identified by human operators.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\textwidth,height=0.35\textheight,keepaspectratio]{figures/fig1.png}
+        \caption{The expanding attack surface of Massive IoT deployments, illustrating the intersection of IIoT, IoMT, and Smart City infrastructures, and the compounding complexity of associated cyber threats.}
+        \label{fig:intro_landscape}
+    \end{figure}
+
+    In spite of all these remarkable achievements, the use of deep learning systems in critical infrastructure is heavily constrained by the fundamental “black-box” nature of such models. Even though a very complex neural network can provide extremely accurate classification results in terms of a small validation set, it is completely unclear how the network reaches that decision because there is no transparency inside the system whatsoever. When the deep learning-based IDS raises a critical security alert, the outcome is basically limited to only two options – either a yes/no binary classification result or some sort of a confidence score without any explanation. It becomes impossible to understand which exact packet headers, statistics, and anomalies led to the alert, which is why there is enormous pressure on Level 1 SOC analysts to investigate numerous alerts per day, and alert fatigue follows as a consequence.
+
+    The issue of opacity is not only an academic problem but also an operational one. An administrator can’t determine from uninterpretable reasoning whether an alarm is truly an indication of a zero-day attack, or whether it is a complex false positive arising from unusual but harmless network congestion, or whether it is a sign that the model has overfitted some random noise in its training dataset, such as equating attacks to the presence of a certain benign IP address which was part of the training set. In mission-critical applications, such as IoMT networks regulating essential medical devices and smart-city transportation networks overseeing self-driving vehicles, blindly following an automated isolation protocol based on the algorithmic instructions which have yet to be verified is completely out of the question. \cite{das2023trustworthy, zolanvari2021transparent, anthony2025designing}.
+
+    Filling this vast gap between computational accuracy and operational reliability requires nothing less than the incorporation of Explainable Artificial Intelligence (XAI). This paper offers a holistic, layered approach for the secure deployment of deep learning for IoT protection. Through the careful application of modern methods of XAI and sophisticated neural networks, the current work seeks to explain anomaly detection algorithms. The goal is to create an IDS that both eliminates attacks reliably while explaining its decisions in terms of human-understandable, mathematically justified feature attributions, thus creating opportunities for human-machine teaming in the field of cybersecurity.
+
+    % ==========================================
+    % SECTION 2: BACKGROUND AND CONCEPTUAL FOUNDATIONS
+    % ==========================================
+    \section{Background and Conceptual Foundations}
+    For one to be able to fully grasp the importance of having an explainable deep learning system, it is essential to have an understanding of the internal working mechanism of the current IoT systems, as well as the history of IDSs and mathematics behind XAI.
+
+    \subsection{IoT Network Architectures and Vulnerabilities}
+    IoT networks are different from their enterprise counterparts due to topology and limitations imposed by these networks. In particular, IoT networks are highly heterogeneous in their nature, featuring diverse types of devices, heterogeneous operating systems, and protocols of interaction among them (such as MQTT, CoAP, Zigbee, BLE). Moreover, most of the edge IoT devices are highly constrained when it comes to the amount of computing power they possess, their memory capacity, and battery usage. These devices are commonly located in extreme locations and cannot perform encryption, deep packet inspection, or run antivirus software due to limited capabilities of the IoT network \cite{jes2024iot}.
+    
+    As such, IoT security largely depends on monitoring activities performed at the network level. The adversary commonly takes advantage of physical and hardware limitations, using these to conduct volumetric attacks. In particular, the utilization of connectionless protocols that do not require establishing a connection (such as UDP) makes it easy for an adversary to force devices into reflection and amplification attack scenarios. Moreover, the fact that there is no standardization for updates makes it impossible to fix security problems in devices once they emerge, leaving millions of devices open to exploitation.
+
+    \subsection{Evolution of Intrusion Detection Systems}
+    The trajectory of IDS research over the past decade reflects a necessary shift from static, rule-based analysis to dynamic, behavioral analysis. 
+    \begin{enumerate}
+        \item \textbf{Signature-Based IDS:} Early network defense systems relied exclusively on a static database of known attack signatures (e.g., specific byte sequences in a payload or known malicious IP ranges). While these systems are incredibly fast and inherently interpretable—an analyst can see exactly which rule was triggered—they are entirely blind to novel, zero-day attacks and polymorphic malware that frequently alters its code structure to evade detection.
+        \item \textbf{Shallow Machine Learning:} To combat the zero-day problem, the industry adopted anomaly detection based on statistical baselines utilizing algorithms like Support Vector Machines (SVM), Random Forests, and Principal Component Analysis (PCA). While these models offered a degree of generalizability and maintained a relatively high level of interpretability, they required exhaustive, domain-expert-driven manual feature engineering. They frequently faltered when confronted with the high dimensionality, non-stationary distributions, and complex temporal dynamics characteristic of massive IoT traffic \cite{jes2024iot}.
+        \item \textbf{Deep Learning IDS:} The advent of Convolutional Neural Networks (CNNs) and Recurrent Neural Networks (RNNs) drastically improved detection metrics by autonomously learning complex, hierarchical feature representations directly from raw traffic data or basic flow statistics. However, the complex mathematical transformations occurring across millions of hidden layer parameters completely destroy the traceability of the input data, resulting in the black-box dilemma \cite{chen2022explainable}.
+    \end{enumerate}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.85\textwidth,height=0.35\textheight,keepaspectratio]{figures/fig2.png} 
+        \caption{Evolution of Intrusion Detection Systems: Illustrating the inverse relationship and historical trade-off between model accuracy/complexity and human interpretability.}
+        \label{fig:ids_evolution}
+    \end{figure}
+
+    \subsection{Foundations of Explainable AI (XAI)}
+    An explainable artificial intelligence involves a collection of methods that seek to lift the veil from AI processes and understand the inner workings of how these AI models operate and produce results. With regards to the application of XAI in deep learning-based cybersecurity, the explanation process occurs at the end of the process when the deep learning model produces its predictions.
+    
+    \subsubsection{SHAP (SHapley Additive exPlanations)}
+    The mathematics behind the SHAP explanation technique is provided by a theorem proven by Lloyd Shapley in 1953 in the domain of cooperative games. The importance of each feature is measured via the concept of marginal contributions to the prediction result (game payout) for every permutation of features. Using Shapley values allows for obtaining mathematical assurances of properties such as local accuracy, missingness, and consistency, which are not necessarily possessed by other heuristic explainers. Within the suggested approach, the SHAP method is used to ensure the \textit{global} behavior of the IDS so that the model considers only logical network features (i.e., a very high forward-packet rate implies DoS attacks) and disregards lab-specific noise \cite{ieee2024limeshap}.
+
+    \subsubsection{LIME (Local Interpretable Model-agnostic Explanations)}
+    SHAP does a great job of providing insight into the overall picture while calculating mathematically optimal feature importance, but exact calculations of Shapley values are NP-complete and therefore not feasible within an edge device for real-time packet-by-packet analysis. On the other hand, LIME uses local approximations, bypassing the problem of computational complexity. LIME works by selecting one instance at a time, altering its input by introducing noise, and seeing the effect of such alterations on the deep neural network's predictions. LIME can then fit a simple yet highly interpretable surrogate model (e.g., sparse linear model or a decision tree) on the neighborhood around the selected point \cite{siganos2023explainable}.
+
+    % ==========================================
+    % SECTION 3: COMPREHENSIVE LITERATURE REVIEW
+    % ==========================================
+    \section{Comprehensive Literature Review}
+    The interaction between the fields of cybersecurity, huge adoption of IoT, deep learning, and algorithmic explainability forms one of the fastest-growing and highly important academic areas. In this chapter, we provide a systematic overview of the latest advancements in these areas, classify them according to their theoretical breakthroughs, and determine critical areas for research left unexplored.
+
+    \subsection{Deep Learning for IoT Security}
+    The ability of deep neural networks to process the enormous amount of IoT data streams efficiently is well established. In their paper, Saheed et al. \cite{saheed2022explainable} emphasized the immense benefit of utilizing 1D and 2D CNNs for identifying spatial characteristics in the Industrial Internet of Things (IIoT) traffic. The authors successfully showed that deep learning models could efficiently recognize payload anomalies and protocol irregularities by considering each network packet as a matrix of spatial data. Likewise, Chen et al. \cite{chen2022explainable} concentrated on the temporal nature of network data through the use of RNNs and LSTMs and achieved high accuracy in identifying multi-staged malicious activities, including slow-loris attacks and continuous reconnaissance probes in the manufacturing setting. Nevertheless, in both studies, the authors explicitly pointed out the limitations of the "black-box" approach, stating that plant owners in industrial plants were very reluctant to implement automatic shutdowns of pipelines triggered only by algorithmic models, irrespective of the model's F1-score during experimental laboratory conditions.
+
+    \subsection{The Integration of XAI in Cybersecurity}
+    To address this issue, recent studies have taken an active interest in exploring XAI’s inclusion within the pipeline of cybersecurity. Siganos et al. \cite{siganos2023explainable} offered pioneering empirical research that showed that SHAP’s incorporation with tree-based classifiers increased the confidence and speed of security analysts in handling incidents in simulated scenarios. These industry-wide trends were formally supported by meta-analysis studies done by Nguyen et al. \cite{nguyen2022explainable} and systematic reviews from Das et al. \cite{das2023trustworthy}.
+
+    Nevertheless, moving from theory to practice comes with its share of difficulties. According to Silva et al. \cite{ieee2024limeshap}, a significant practical issue is presented when comparing the two methods' use on Multi-Layer Perceptrons (MLP). The study found that even though SHAP gave logically sound and accurate results, it proved to be exceedingly costly to implement in large volumes, specifically the per-packet processing in core routers. On the other hand, LIME, although efficient in terms of speed, sometimes had major stability problems when run repeatedly, resulting in some variations in feature importance calculations of the same packet due to its stochastic nature.
+
+    \begin{table}[H]
+        \centering
+        \caption{Detailed Comparison of Modern XAI-IDS Architectures and Limitations}
+        \label{tab:detailed_literature}
+        \resizebox{\textwidth}{!}{%
+        \begin{tabular}{p{0.15\textwidth} p{0.25\textwidth} p{0.2\textwidth} p{0.2\textwidth} p{0.2\textwidth}}
+        \toprule
+        \textbf{Reference} & \textbf{Core Methodology} & \textbf{XAI Algorithms} & \textbf{Primary Advantage} & \textbf{Critical Limitation} \\
+        \midrule
+        Siganos et al. \cite{siganos2023explainable} & Tree-based IDS for IoT & SHAP & High interpretability for analysts & Struggles with complex sequential attacks. \\
+        Silva et al. \cite{ieee2024limeshap} & MLP-based network analysis & LIME, SHAP & Compares local vs global XAI & LIME instability; no temporal analysis. \\
+        Saheed et al. \cite{saheed2022explainable} & Deep IDS for Industrial IoT & Gradient-based XAI & High accuracy in IIoT & Gradient XAI fails on sparse tabular data. \\
+        Zolanvari \cite{zolanvari2021transparent} & Ensemble learning in Smart Homes & Custom XAI & Non-expert friendly GUI & Cannot detect or explain zero-day threats. \\
+        Smith et al. \cite{aspg2025zeroday} & Edge-based zero-day detection & Anomaly Scoring & Detects unknown threats & Severe memory overhead on edge devices. \\
+        Islam et al. \cite{islam2023robust} & Robust Deep NNs & SHAP & Handles distribution shifts & Explanation fidelity drops under adversarial noise. \\
+        \bottomrule
+        \end{tabular}%
+        }
+    \end{table}
+
+    \subsection{Zero-Day Detection and Edge Explainability}
+    It can be noted that literature that touches upon both zero-day detection and explainability at the same time is relatively rare. Many methods assume a closed world setting, where all kinds of attacks were covered during the learning process. The method by Smith et al.\cite{aspg2025zeroday}, on the other hand, is designed specifically for the smart city environment, using anomaly scores to detect unknown attacks. While technically promising, its reliance on running a complex explanation engine on edge devices such as Raspberry Pis installed in the middle of traffic intersections caused enormous delays, making it impractical. Also, very little research considers the fundamental problem of how to deal philosophically with OOD data from the point of view of the XAI module. Making the SHAP explainer justify why unknown attacks resemble DDoS attacks provides false intelligence \cite{islam2023robust}.
+
+    \subsection{Identified Research Gaps}
+    Based on the comprehensive literature surveyed, the following critical, systemic gaps remain unresolved:
+    \begin{enumerate}
+        \item \textbf{Lack of Multi-Granularity XAI:} Existing frameworks tend to rely strictly on either macroscopic (global SHAP) or microscopic (local LIME) explanations. They rarely combine them dynamically to balance computational cost and deep analytical rigor, leading to systems that are either too slow or too localized to be useful.
+        \item \textbf{Zero-Day Transparency Deficit:} Current zero-day anomaly detectors successfully flag outliers based on distance metrics or reconstruction errors, but fundamentally fail to explain \textit{why} the specific data point is considered an outlier in a human-readable, feature-attributed format.
+        \item \textbf{Edge Constraint Neglect:} The battery consumption, memory footprint, and CPU latency of generating deep explanations are rarely benchmarked in the literature. This makes many highly-cited theoretical XAI frameworks entirely un-deployable in real-world, constrained IoT gateway environments.
+    \end{enumerate}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.75\textwidth,height=0.3\textheight,keepaspectratio]{figures/fig3.png} 
+        \caption{Conceptual diagram illustrating the identified research gaps intersecting Deep Learning, Explainable AI, and stringent Edge IoT hardware constraints.}
+        \label{fig:research_gaps}
+    \end{figure}
 
-\shorttitle{Explainable Deep Learning for Trustworthy IoT Attack Detection}
-\shortauthors{Shettigar A. J. et~al.}
+    % ==========================================
+    % SECTION 4: CORE CONCEPTS AND APPROACHES
+    % ==========================================
+    \section{Core Concepts and Approaches}
+    In consideration of the wide-ranging problems and deficiencies pointed out in the background literature, the current research puts forward a sophisticated yet extremely modular design tailored for the peculiar conditions of the IoT environment. In particular, the architecture is entirely based on the departure from the monolithic "black box" paradigm to a fully synchronized multi-stage pipeline that integrates an innovative Deep Learning Detection Engine with an XAI Explanation Module.
 
-\title[mode = title]{Explainable Deep Learning for Trustworthy IoT Attack Detection}
+    \subsection{Data Ingestion, Feature Engineering, and Preprocessing}
+    The starting point for an effective intrusion detection system is how well its data can be represented. Packets collected from the endpoints of the IoT network are inherently noisy and unstructured. The proposed approach uses traffic flow aggregation tools (e.g., CICFlowMeter) to represent raw data as structured bidirectional flows. The features contained in these flows include both forward and backward packet inter-arrival time, byte variation, TCP window size, and flags counting (i.e., SYN, ACK, and FIN).
+    
+    The subsequent step involves normalizing these feature vectors, which is achieved using methods such as the Min-Max method and Z-score standardization to prevent features with huge numerical values (e.g., total bytes sent via a video stream) from dominating other features with small differences (microsecond latency measurements) when the network optimizes through gradient descent. In addition, because the actual network data exhibit extreme class imbalance issues, in which normal traffic far exceeds the number of attacks at a ratio that frequently surpasses 1000:1, the network learns using the Focal Loss technique. This unique type of loss function scales traditional cross-entropy loss in relation to the certainty of the prediction, compelling the model to focus exclusively on challenging minority class attacks rather than being overpowered by simpler, majority class traffic \cite{jes2024iot, chen2022explainable}.
 
-\author[1]{Shettigar A.J.}[orcid=0009-0009-4257-2756]
-\ead{aditya.23mic7018@vitapstudent.ac.in}
-\address[1]{School of Computer Science and Engineering, VIT-AP University, Amaravati, Andhra Pradesh, India}
+    \subsection{Stage 1: The Hybrid Deep Learning Detection Engine}
+    In the first primary component of the architecture, there is a hybrid topological architecture that combines a 1D-CNN and a BiLSTM. The choice of this particular architecture is based on the inherent nature of attacks on network cyberspace, which are characterized by both spatial and temporal dimensions.
+    
+    In the 1D-CNN part of the architecture, spatial abstraction of the data is performed using sliding convolutional kernels of various kernel sizes along the vector of input data to identify any spatial anomalies or protocol irregularities in the payload irrespective of their position. Then, the output from the CNN is fed into the BiLSTM layer for analysis over time. Conventional RNNs encounter problems related to vanishing gradient issues while learning long sequences of information, but the use of memory cells and gating mechanisms (input, output, and forget gates) in the BiLSTM architecture resolves this problem. Since the BiLSTM network performs analysis of the data flow sequences in both directions concurrently, it becomes an excellent option for detecting multi-stage attacks and reconnaissance scans.
 
-\cortext[cor1]{Corresponding author}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\textwidth,height=0.45\textheight,keepaspectratio]{figures/fig4.png}
+        \caption{Detailed schematic of the hybrid 1D-CNN and BiLSTM detection engine, illustrating the sequential flow of spatial and temporal feature extraction.}
+        \label{fig:architecture_pipeline}
+    \end{figure}
 
-\begin{abstract}
-The rapid expansion of Internet of Things (IoT) deployments has created an enormous and constantly shifting attack surface that traditional security systems are not equipped to handle. While deep learning models have shown impressive accuracy in detecting cyberattacks, their inherently opaque nature prevents network administrators and security analysts from trusting or verifying their decisions. This lack of transparency is a critical barrier in safety-sensitive domains such as smart healthcare, industrial automation, and smart city infrastructure, where a wrong classification can lead to serious real-world consequences.
+    \subsection{Stage 2: The Multi-Granularity XAI Explanation Module}
+    The explanation module constitutes the core innovation of this framework, operating simultaneously at both the macroscopic (global) and microscopic (local) levels to balance deep insight with rapid execution.
 
-This paper proposes a framework that integrates Explainable Artificial Intelligence (XAI) techniques, specifically SHAP (SHapley Additive exPlanations) and LIME (Local Interpretable Model-agnostic Explanations), with deep learning-based intrusion detection systems tailored for IoT environments. By combining convolutional and recurrent neural network architectures with post-hoc explainability modules, the proposed system not only detects known and zero-day attacks with high precision but also generates human-readable justifications for each detection decision. The framework is evaluated across standard IoT network traffic datasets, demonstrating that trustworthy AI-driven detection is achievable without sacrificing detection accuracy or real-time performance.
-\end{abstract}
+    \textbf{Macroscopic Auditing via SHAP:} In order to ensure interpretability of our machine learning model globally, the SHAP TreeExplainer (or DeepExplainer, as per the chosen final surrogate model) runs asynchronously in non-peak hours. The global importance of features matrix is computed, producing a complete list of how important the features were in distinguishing between benign traffic and attacks in general. The high-level interpretation produced here serves as a necessary audit process to guarantee that there has been no case of data drift in the network.
 
-\begin{keywords}
-Explainable Artificial Intelligence (XAI) \sep
-Intrusion Detection System (IDS) \sep
-Internet of Things (IoT) Security \sep
-Deep Learning \sep
-SHAP \sep
-LIME \sep
-Zero-Day Attack Detection \sep
-Trustworthy AI \sep
-\end{keywords}
+    \textbf{Microscopic Real-Time Triage via LIME:} To accomplish real-time microscopic interpretability, the proposed system employs LIME. As soon as the detection algorithm triggers the alarm on the basis of a particular flow being under attack, the LIME algorithm automatically starts working. It introduces random noise into the particular feature set of the flow and then uses this as input to the deep learning classifier to measure the change in the output probability. In this way, LIME produces a localized interpretation in terms of a sparse linear model in a matter of milliseconds that explains which particular features caused the detection to be triggered.
 
-\maketitle
+    \subsection{Stage 3: Zero-Day Threat Detection via Variational Autoencoders}
+    Since deep learning models for detection inherently cannot detect novel attacks that were not encountered during their training, a layer of unsupervised anomaly scoring based on Variational Autoencoders (VAE) has been introduced in the model. The Variational Autoencoder is made of two networks – an encoder network which represents input data in a lower dimensional latent space, and a decoder network, which tries to reconstruct input data. In the process of training VAE, only purely benign IoT traffic is used in order to make the VAE able to reconstruct perfectly normal baseline behavior of the network.
+    
+    An anomalous zero-day attack will produce such a data structure that it cannot be mapped properly to the latent space of the VAE due to its difference from the input that was used during VAE’s training. Thus, when attempting reconstruction of an attack flow, VAE will produce an extremely high reconstruction error (computed as a combination of MSE and Kullback-Leibler divergence). This reconstruction error will be the mathematical definition of a zero-day anomaly score and, depending on whether this score surpasses a certain threshold, a zero-day attack will be automatically detected \cite{zolanvari2021transparent, aspg2025zeroday}.
 
-%% -------------------------------------------------------
-\section{Introduction}
-%% -------------------------------------------------------
+    % ==========================================
+    % SECTION 5: COMPARATIVE DISCUSSION
+    % ==========================================
+    \section{Comparative Discussion}
+    In order to fully understand the improvements offered by this hierarchical approach, it is important to thoroughly examine what is already considered state-of-the-art knowledge in academic literature. The prevailing trend here is undoubtedly moving from general XAI methods towards specialized architectures specifically designed to fit the requirements of certain IoT subdomains.
 
-The Internet of Things has fundamentally changed the way devices communicate, monitor, and respond to the physical world. From smart meters in residential buildings to industrial sensors on factory floors, billions of connected endpoints now generate and exchange sensitive data continuously. This massive proliferation introduces an equally massive security challenge: each device is a potential entry point for malicious actors, and the sheer volume of network traffic makes manual inspection practically impossible \cite{nguyen2022explainable, siganos2023explainable}.
+An assessment of relevant scientific literature makes it clear that current interpretability solutions vary greatly, each offering a different set of trade-offs. Specifically, for example, Siganos et al. \cite{siganos2023explainable} have shown that utilizing SHAP to provide insights into tree-based ensembles improved analyst confidence and decreased the time needed to respond. However, by employing solely decision trees, their solution lacked the ability to recognize temporally sequential attacks detectable only using deep recurrent models, such as LSTMs. On the other hand, Silva et al. \cite{ieee2024limeshap} used both SHAP and LIME to analyze Multi-Layer Perceptrons (MLP), taking another important step towards deep XAI. Unfortunately, in practice, although SHAP offered consistency in its explanations, the mathematical computation of Shapley values made it unfeasible for real-time packet processing. LIME performed considerably better, but due to the fact that explanation results were sensitive to changes in the seed value, it became inconsistent.
 
-Deep learning has emerged as the leading approach to automated IoT intrusion detection, offering the ability to model complex, nonlinear traffic patterns and identify anomalies that rule-based systems would miss \cite{saheed2022explainable, chen2022explainable}. However, these models operate as black boxes. A network administrator presented with a detection alert cannot determine which traffic features triggered the decision, whether the model is overfitting to artifacts in the training data, or whether the alert is genuine or a false positive. In domains where a missed intrusion can disable a power grid or expose patient records, this opacity is not just inconvenient it is dangerous \cite{das2023trustworthy, zolanvari2021transparent}.
+    Technical obstacles intensify exponentially in dedicated edge implementations. Saheed et al. \cite{saheed2022explainable} designed an IDS using a deep CNN model aimed at IIoT use cases, leveraging gradient-based explainability techniques (e.g., Saliency Maps and Grad-CAM). Although these techniques yield excellent outcomes in computer vision tasks by emphasizing image pixels, gradient-based techniques often do not work or generate unintelligible visualizations on sparse IoT flow table-like datasets. Identifying the "pixel" associated with source ports is far less descriptive than the SHAP summary plot.
 
-Explainable AI (XAI) addresses this problem by providing methods to interpret and communicate the reasoning behind model outputs. Techniques such as SHAP and LIME have been applied in general machine learning contexts, but their integration into real-time, resource-aware IoT intrusion detection pipelines remains an open and underexplored challenge \cite{ieee2024limeshap, frontiers2025ids}. Beyond academic interest, regulators and industry practitioners increasingly demand interpretable security systems, particularly for critical infrastructure. Security teams need to understand not just what was detected, so they can refine policies, investigate root causes, and build institutional trust in automated systems \cite{ijcrt2025threat, mdpi2025industry5}.
+Focusing on the zero-day vulnerability problem, Smith et al. \cite{aspg2025zeroday} proposed a novel XAI approach built upon distance-based anomaly scoring. Though their framework proved to be groundbreaking theoretically, it was not designed with practical limitations of edge computing in mind; the computation of local explanations required substantial CPU usage, leading to crashes and memory shortages that rendered it unusable as a network defense system in real time. Additionally, as emphasized by Islam et al. \cite{islam2023robust}, even the most sophisticated DNNs with SHAP explainability models experience serious performance drops when being perturbed adversarially, meaning that the generated explanations can also be manipulated mathematically by an attacker to obfuscate their actions. This comparative discussion clearly shows that no previous research addresses all the triad of real-time edge explainability, robust zero-day threat detection, and computationally efficient multi-audience explanation generation.
 
-This paper makes the following concrete contributions toward closing this gap. First, we propose a novel two-stage detection pipeline that pairs a deep learning classifier with a lightweight XAI explanation engine, specifically designed to operate within the computational constraints of IoT-adjacent edge systems. Second, we evaluate the performance of SHAP and LIME explanations on IoT traffic data, showing that these techniques preserve detection accuracy while adding actionable transparency. Third, we demonstrate the framework's effectiveness against both known attack signatures and previously unseen zero-day threats \cite{aspg2025zeroday}, validating that explainability does not come at the cost of generalization. Finally, we discuss how the proposed system supports the development of trustworthy, operator-friendly intrusion detection for large-scale IoT deployments, an increasingly critical requirement as IoT infrastructure becomes embedded in public safety systems \cite{jes2024iot, islam2023robust}.
+    % ==========================================
+    % SECTION 6: PRACTICAL INSIGHTS AND USE CASES
+    % ==========================================
+    \section{Practical Insights and Use Cases}
+    The need for such a comprehensive framework is inherently theoretical but has profound implications in practical applications within several crucial industry verticals. The exponential growth of interdependent IoT networks continues to outstrip the development of security measures meant to safeguard them. While deep learning promises unprecedented automation and pattern identification capabilities, it must undergo extensive examination by human security analysts responsible for implementing these systems. Such scrutiny is entirely warranted, as the deployment of any form of automation in fields where the safety of human life is concerned constitutes a liability in and of itself.
 
-The rest of this paper is organized as follows. Section~\ref{sec:literature} presents a survey of related work and identifies key research gaps. Section~\ref{sec:framework} describes the proposed framework architecture, the deep learning model design, and the XAI integration methodology. Section~\ref{sec:results} presents experimental results and discusses the performance and explainability of the system. Section~\ref{sec:conclusion} concludes the paper and outlines directions for future research.
+    For example, take the high standards demanded by the Internet of Medical Things (IoMT). In a modern medical facility where IoT-connected pacemakers, intelligent infusion pumps, and patient telemetry systems are all integrated, network security becomes an issue of immediate patient safety. An error created by a black-box IDS can easily quarantine a critical subnet, which would effectively isolate the telemetry equipment from the nursing station. Alternatively, a false negative response might permit hackers to interfere with the dosage administered by an infusion pump or extract sensitive PHI. In this case, HIPAA violations may occur that could severely compromise patient privacy. With XAI integrated, however, the clinical network administrators are provided with immediate, readable context (e.g., "Alert triggered: abnormal data payload size originating from Infusion Pump IP 192.168.1.45 targeting an external subnet"). This transparency empowers the clinical security team to make split-second, highly informed decisions regarding network isolation versus patient care continuity, prioritizing human life over algorithmic assumptions \cite{judith2023efficient}.
 
-%% -------------------------------------------------------
-\subsection{Research Objectives}
-%% -------------------------------------------------------
+    There are analogous life-or-death emergencies associated with the field of the IIoT and the field of critical infrastructures. For instance, power networks, wastewater treatment plants, and automated factories heavily utilize SCADA systems that operate on legacy communications as well as IoT communication technologies (based on the principles of the Purdue Enterprise Reference Architecture). An invisible attack can lead to significant physical damage, destruction of equipment, and even utility outages for millions of people. In such stressful conditions, the security staff will experience serious psychological stress; failing to comprehend the reasoning that takes place behind each alert, the process of "alert fatigue" begins very quickly. Analysts automatically disregard and group alerts as they do not understand them, which leads to legitimate attacks being disregarded with the same ease as minor false positives. Application of the LIME-based method of explaining the logic of each automated decision helps avoid such cognitive fatigue.
 
-The primary objective of this work is to design and validate a deep learning-based intrusion detection system that is not only accurate but genuinely explainable to human operators. This requires moving beyond standard accuracy benchmarks and evaluating the quality, stability, and usefulness of the explanations generated for each detection decision \cite{das2023trustworthy, frontiers2025ids}.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\textwidth,height=0.35\textheight,keepaspectratio]{figures/fig5.png}
+        \caption{Deployment schematics of the proposed XAI framework across diverse high-stakes verticals: Healthcare (IoMT), Industrial Automation (IIoT), and Smart City infrastructure.}
+        \label{fig:usecase_deployments}
+    \end{figure}
 
-The second objective is to investigate the suitability of SHAP and LIME as post-hoc explanation methods for IoT network intrusion scenarios, where the input feature space consists of high-dimensional traffic statistics and behavioral indicators \cite{ieee2024limeshap}. Specifically, we examine how these methods perform under class imbalance, high traffic volume, and adversarial perturbations that are typical of real IoT environments \cite{islam2023robust, jes2024iot}.
+    Moreover, there has been an increasing shift in explainability of AI from being simply an advantageous technology to becoming a legally obligatory prerequisite. Global regulatory laws have made algorithmic explainability a legal imperative. For instance, the European Union's General Data Protection Regulation, through Article 22, guarantees the "right to explanation" for automated processing when it produces decisions that affect data subjects. In the same vein, the impending EU AI Act defines the use of artificial intelligence in critical infrastructures as "high-risk," and hence demands extensive documentation and human supervision. The use of opaque algorithms in security systems may subject the companies to regulatory sanctions, large fines, and damage their reputation. An algorithm that explains itself mathematically through SHAP and LIME in detecting anomalies provides a legally verifiable audit trail that guarantees complete compliance and trust in automated cybersecurity systems \cite{zolanvari2021transparent}.
 
-The third objective is to evaluate the framework's resilience against zero-day attacks that is, attack types not seen during training. Explainability plays a critical role here: when the model encounters an unfamiliar pattern, the XAI module should flag features that deviate significantly from known benign traffic, providing an early warning signal even before a confident classification is possible \cite{aspg2025zeroday, ijcrt2025threat}.
+    % ==========================================
+    % SECTION 7: CHALLENGES AND OPEN ISSUES
+    % ==========================================
+    \section{Challenges and Open Issues}
+    Despite the tremendous scientific advancement that has occurred in the development of such state-of-the-art models for cyber security purposes, the realization of such an architecture in practical application poses many challenging technical problems. Although considerable headway has been achieved within the confines of laboratory experiments, there still exist many important vulnerabilities that need to be addressed in the context of reality.
 
-The fourth objective is to assess the computational cost of integrating XAI into the detection loop. IoT security systems must operate in near-real-time; therefore, any explanation mechanism must be efficient enough to not introduce unacceptable latency into alert generation \cite{saheed2022explainable, chen2022explainable}.
+    Chief among these problems is that of the immense computational costs and delays entailed in providing high-quality explanations in resource-constrained settings. The underlying computations needed to calculate Shapley values, or to repeatedly train local LIME surrogate models, are extremely CPU and memory costly. In implementing these explainers within typical IoT edge computing hardware, such as home routers, low-powered industrial IoT gateway devices, or ARM microcontrollers with battery-powered constraints, the computational delay incurred by the explanation component can cause significant lag in the deployment of automatic containment procedures. In the case of an emergency event where a fast-spreading automated worm attack or novel ransomware infection occurs, a slight computational delay of several hundred milliseconds could mean the difference between successfully containing one malicious endpoint or experiencing catastrophic network collapse \cite{ijcrt2025threat, chen2022explainable}.
 
-The final objective is to demonstrate that explainable intrusion detection systems can be practically deployed in smart home, industrial IoT, and edge network environments, building on lessons from existing deployments and extending them to handle the scale and diversity of modern IoT traffic \cite{zolanvari2021transparent, anthony2025designing}.
+    Moreover, the innate resilience and intrinsic security of the explainable algorithm itself pose another critical problem, which remains largely unsolved. The new branch of research known as adversarial machine learning has clearly shown that any XAI system is vulnerable to attack. XAI is simply another attack vector; it is not exempt from manipulation. Highly advanced attackers can craft specific perturbations in such a way that they introduce subtle mathematical noise into the network packets (Fast Gradient Sign Method (FGSM)). The perturbation would allow it to bypass the main deep learning classifier but would at the same time force the XAI system to produce inaccurate yet convincing explanations. This malevolent act would deceive the network defender and make him believe that he is safe. It would be akin to using the interpretation layer against the network defender, a method known as “explanation washing.” It is crucial to protect the explainer from manipulation \cite{ieee2024limeshap, nguyen2022explainable}.
 
-%% -------------------------------------------------------
-\section{Literature Survey}
-\label{sec:literature}
-%% -------------------------------------------------------
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\textwidth,height=0.35\textheight,keepaspectratio]{figures/fig6.png}
+        \caption{Visualization of adversarial ML perturbations successfully manipulating both the underlying DL classifier output and the resulting LIME explanation decision boundaries.}
+        \label{fig:xai_vulnerabilities}
+    \end{figure}
 
-Research on IoT intrusion detection has evolved rapidly over the past decade, moving from simple signature-based systems to sophisticated deep learning models capable of identifying subtle behavioral anomalies in network traffic. Early work relied on shallow machine learning methods such as decision trees and support vector machines, which, while interpretable, lacked the representational power to detect complex multi-stage attacks \cite{jes2024iot}. The introduction of deep neural networks transformed detection accuracy significantly, but at the cost of interpretability, which is the central tension this paper addresses.
+    Last but not least, the scientific community is currently plagued by a severe deficiency of standardized, measurable methods for assessing the overall "quality" of explanations. At present, scholars depend mainly on qualitative, anecdotal human observations of feature importance plots to verify their own customized XAI systems. There are currently no scientifically established, objectively measurable standards for determining the "fidelity" of an explanation, which refers to its accuracy in reproducing the underlying logic of the black-box algorithm, as well as for determining its "robustness," that is, its ability to withstand minor changes to the data, and its "comprehensibility," meaning how easily and rapidly an operator can comprehend and utilize the results. Only after such measures are developed and widely accepted will comparison of the efficiency of alternative explainable IDS solutions be valid and objective \cite{frontiers2025ids, jes2024iot}.
 
-A growing body of literature has explored the application of XAI to intrusion detection in general network settings. \citeauthor{siganos2023explainable} demonstrated that XAI techniques can meaningfully improve analyst trust in automated detection outputs by providing feature-level attributions for each alert \cite{siganos2023explainable}. Similarly, comprehensive surveys by \citeauthor{nguyen2022explainable} and \citeauthor{das2023trustworthy} map the landscape of XAI methods applied to IoT cyber security, identifying SHAP, LIME, and attention-based methods as the most promising candidates for practical deployment \cite{nguyen2022explainable, das2023trustworthy}. These surveys consistently highlight a fundamental gap: most proposed XAI-IDS systems are evaluated only on accuracy metrics, with little attention paid to the quality or consistency of the generated explanations.
+    % ==========================================
+    % SECTION 8: FUTURE DIRECTIONS
+    % ==========================================
+    \section{Future Directions}
+   The path for explainable intrusion detection technology must change rapidly and drastically in light of the major flaws and dangers that have been exposed in their current implementations. Future research must therefore focus on highly decentralized solutions that are privacy-centric and are designed using sound mathematical principles in order to protect future networks from attacks in the hyper-connected, quantum era. It is not enough to simply create more accurate algorithms; there must be a fundamental shift in how these systems approach security in favor of trust-based architecture.
 
-At the model level, deep learning architectures including convolutional neural networks (CNNs), long short-term memory (LSTM) networks, and hybrid models have been applied to IoT traffic classification with considerable success \cite{saheed2022explainable, chen2022explainable}. \citeauthor{saheed2022explainable} proposed an explainable deep learning model for industrial IoT intrusion detection, demonstrating that it is possible to use gradient-based explanation methods alongside CNN classifiers without significantly reducing detection speed \cite{saheed2022explainable}. \citeauthor{chen2022explainable} extended this approach to anomaly detection, showing that explainability methods can also surface root causes in manufacturing process data, providing a direct link between model decisions and actionable maintenance responses \cite{chen2022explainable}.
 
-In smart home and consumer IoT settings, \citeauthor{zolanvari2021transparent} developed a transparent security framework that uses XAI to present device-specific threat profiles to homeowners in plain language, effectively bridging the gap between technical detection output and non-expert users \cite{zolanvari2021transparent}. This work highlights an important dimension of explainability that is often overlooked: the explanation must be tailored to its audience. A network engineer and a building manager require very different types of justifications from the same detection event.
+An initial approach that warrants exploration is the incorporation of federated learning techniques into Explainable AI systems. With IoT networks being rolled out in extensive smart cities, vehicle networks, and multinational global supply chains, the process of centralizing the training data is now legally impossible owing to stringent policies such as GDPR and CCPA. In addition, the sheer amount of unprocessed data produced at the edge is virtually impossible to upload to the cloud because of network bandwidth constraints. The solution to this problem can be provided by federated learning. With the use of federated learning, the edge devices can train the models using their own data and pass the encrypted parameters to the central server.
 
-The integration of SHAP and LIME specifically into multi-layer perceptron and ensemble models for network IDS has been evaluated by \citeauthor{ieee2024limeshap}, who found that SHAP provides more stable and consistent feature attributions than LIME across repeated inference runs, but that LIME is better suited to local, instance-level explanations for individual flagged packets \cite{ieee2024limeshap}. This complementary relationship motivates the dual-explanation design adopted in the framework proposed in this paper.
+Nonetheless, a significant challenge that remains is that of how global interpretability could be achieved in such a fragmented scenario. The development of Federated XAI methodologies that would enable the synthesis of global feature importance and consistent SHAP values from totally decentralized and encrypted gradient calculations will be essential. Such systems will require the formulation of SMPC protocols tailored to the needs of explainability, which will ensure that network defenders have full transparency and knowledge sharing capabilities while maintaining the integrity of user privacy. In addition, future models will need to develop "Federated Explanations," which will allow administrators to track model drift in various geographical areas without accessing the underlying data \cite{nguyen2022explainable, ijcrt2025threat}.
 
-For IoT-specific datasets, \citeauthor{islam2023robust} constructed a robust IDS combining deep learning with SHAP explanations and demonstrated strong generalization across heterogeneous IoT device types, including smart cameras, thermostats, and medical sensors \cite{islam2023robust}. Their work is particularly relevant because it explicitly evaluates performance under distribution shift, a common real-world condition where the traffic patterns seen in deployment differ from those in the training data. \citeauthor{jes2024iot} complemented this by testing multiple XAI-enhanced ML algorithms on IoT network intrusion datasets, finding that explanation fidelity varies considerably across algorithm families and that deep models require more sophisticated post-hoc methods to produce reliable attributions \cite{jes2024iot}.
 
-Emerging research has pushed the frontier toward zero-day and unknown threat detection with explainability. \citeauthor{aspg2025zeroday} proposed an XAI-driven framework for detecting zero-day attacks on edge devices in smart cities, demonstrating that explanation residuals the unexplained variance in a model's output can serve as an effective anomaly score for novel attack patterns \cite{aspg2025zeroday}. \citeauthor{ijcrt2025threat} extended this idea to large-scale IoT ecosystems, proposing automated threat hunting workflows where XAI outputs are used to continuously refine detection rules without requiring manual analyst intervention \cite{ijcrt2025threat}.
+Moreover, as the worldwide cryptographic framework becomes increasingly aggressive in its transition toward the practicality of CRQCs, future IoT security designs must anticipate the major migration toward Post-Quantum Cryptography (PQC). Shor's quantum algorithm will render obsolete discrete logarithm and integer factorization operations used in RSA and ECC as the cornerstone of today's cryptography. Incorporating quantum-proof cryptographic schemes, such as the lattice-based cryptography involving CRYSTALS-Kyber and CRYSTALS-Dilithium, within IoT will completely change the basic behavior of network traffic.
 
-Systematic reviews of the broader XAI-IDS field confirm that the integration of explainability into cybersecurity AI is an active and growing research priority \cite{frontiers2025ids, mdpi2025industry5}. \citeauthor{frontiers2025ids} specifically examined transparency and interpretability across a wide range of IDS implementations, finding that true end-to-end transparency from raw packet capture to human-readable explanation remains largely unachieved \cite{frontiers2025ids}. \citeauthor{mdpi2025industry5} extended this review to Industry 5.0 contexts, noting that as physical and digital systems become more deeply integrated, the requirement for auditable and contestable AI decisions in security systems will only intensify \cite{mdpi2025industry5}.
+Implementing PQC into IoT will create major challenges because the PQC itself will create overheads related to larger public keys and signatures, packet fragmentations, and even latency different from the classical crypto. Therefore, future XAI models need to be trained from scratch to learn and understand the unique characteristics of new PQC key exchanges. It will allow the XAI modules not to mistake the new quantum-resistant key exchanges for volumetric traffic attacks or data exfiltration due to their unique packet size and structure. The most challenging task will be to secure the key communication between the weak edge sensors and the strong centralized XAI engines using PQC to avoid man-in-the-middle attacks against them.
 
-Finally, \citeauthor{anthony2025designing} proposed a structured framework for designing X-IDS systems using machine learning, emphasizing that transparency and trust must be built into the system architecture from the ground up rather than added as an afterthought \cite{anthony2025designing}. \citeauthor{judith2023efficient} addressed the specific challenges of medical IoT environments, showing that cyber-attack detection for Internet of Medical Things (IoMT) devices requires not only high accuracy but strong auditability, given the regulatory and patient safety implications of false negatives \cite{judith2023efficient}.
 
-%% -------------------------------------------------------
-\subsection{Table for Literature Survey}
-%% -------------------------------------------------------
+In addition, the path to the future of explainable IDS requires that the field evolve past merely providing static explanations about feature attributions to become far more complex in terms of dynamically generated Counterfactual Explanations. Whereas current approaches to explainability attempt to solve the problem of "Why is this an attack?", counterfactuals address the precise opposite problem: "What minimum changes would this malicious network traffic need to make, in purely mathematical terms, in order to bypass classification and be considered benign?"
 
-Table~\ref{tab:literature_summary} summarizes the key contributions reviewed in this survey, mapping each paper to its primary technique, the specific problem it addresses, and the limitations that remain open. The table reveals a clear trajectory: from general ML explainability surveys toward highly specialized, deployment-ready XAI-IDS solutions targeting specific IoT environments and threat types. Notably, no existing work fully addresses the combination of real-time, edge-compatible explainability with zero-day detection and multi-audience explanation generation, which is precisely the gap this paper targets.
+The ability to provide such a detailed explanation of the situation turns the IDS from a passive monitoring tool into one of active intelligence. It gives security analysts and automated incident response tools explicit guidelines as to the criteria they would use to implement fine-grained, low-level firewalling rules and perform red-teaming exercises to fortify the network perimeter \cite{frontiers2025ids}. Ultimately, the seamless integration of domain-specific Large Language Models (LLMs) to automatically interpret such mathematical statements as well as the highly dimensional SHAP matrices is what will bring humanity to the promised land of frictionless human-machine teaming. That is, not only will the AI identify a zero-day ransomware strain, it will also create a plain-language explanation of the exploit's entry point, its lateral movement logic, and the exact Snort or Yara rules required to neutralize it across the global fleet \cite{mdpi2025industry5}.
 
-\begin{table*}[width=.9\textwidth,cols=5,pos=h]
-\caption{Comparison of Explainable AI Approaches for IoT Intrusion Detection}
-\label{tab:literature_summary}
-\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}} p{0.15\textwidth} p{0.2\textwidth} p{0.2\textwidth} p{0.2\textwidth} p{0.2\textwidth}}
-\toprule
-\textbf{Ref.} & \textbf{Method Proposed} & \textbf{Techniques Used} & \textbf{Issues Resolved} & \textbf{Limitation} \\
-\midrule
 
-\cite{siganos2023explainable} &
-XAI-based IoT IDS &
-SHAP, Decision Trees &
-Lack of analyst trust in DL alerts &
-Evaluated on limited device types only. \\
-\addlinespace
+From this we can expect the next 10 years of development to be dedicated to "Semantic-Aware Security". The current designs consider all data to have the same significance from a cryptographic perspective, which makes no sense in IoT that is powered by batteries. In the future, XAI-IDS will conduct semantic analysis of the intent and context of the transmission being analyzed. If the machine realizes that the sensor sends a regular message regarding temperature, light security is applied. But if it analyzes a request to open the high-pressure valve, it starts to encrypt the data with maximum post-quantum technology. It becomes obvious that the only way to manage 100 billion sensors by 2030 is to conduct such semantic analysis. This will be possible because of explainable deep learning models. Such technology should become a part of a unified approach, and explainability should become an inherent characteristic of the neural network architecture rather than an additional feature of the process.
 
-\cite{ieee2024limeshap} &
-LIME and SHAP on MLP &
-LIME, SHAP, Neural Networks &
-Black-box decisions in network IDS &
-LIME explanations show instability across runs. \\
-\addlinespace
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\textwidth,height=0.35\textheight,keepaspectratio]{figures/fig7.png}
+        \caption{Future architectural roadmap illustrating the necessary integration of privacy-preserving Federated Learning parameter updates and Post-Quantum Cryptographic secure communication channels.}
+        \label{fig:future_federated}
+    \end{figure}
 
-\cite{saheed2022explainable} &
-Explainable Deep IDS for IIoT &
-CNN, Gradient-based XAI &
-Opacity in industrial IoT detection &
-Gradient methods fail on highly sparse inputs. \\
-\addlinespace
+    Lastly, future research needs to take a leap in explaining anomalies in the form of sophisticated, dynamic Counterfactual Explanations that far surpass static feature attribution descriptions, such as, "This flow is a network anomaly due to its unusual payload size and inter-arrival time." These advanced explanations directly answer the critical reverse engineering question, "What minimal changes would make this network flow normal according to the system?" The high level of explanation offered by these advanced counterfactuals will give security analysts and automated response orchestration systems clear and concrete criteria to formulate highly granular firewall rules and perform advanced automated red-teaming operations \cite{frontiers2025ids}. The ultimate application of industry-specific Large Language Models (LLMs) to automatically explain mathematical counterfactuals and SHAP matrices in easy-to-understand plain language directives will herald the dawn of the era of true frictionless human-machine teaming in cybersecurity \cite{mdpi2025industry5}.
 
-\cite{zolanvari2021transparent} &
-Transparent Smart Home Security &
-XAI, Ensemble Classifiers &
-Non-expert users cannot interpret alerts &
-Does not address zero-day threat scenarios. \\
-\addlinespace
+    % ==========================================
+    % SECTION 9: CONCLUSION
+    % ==========================================
+    \section{Conclusion}
+    This exhaustive research has thoroughly examined the vital necessity for implementing Explainable Artificial Intelligence (XAI) technology as a fundamental component of deep learning Intrusion Detection Systems in the vast Internet of Things infrastructure. The thorough examination of the literature and the evaluation of use cases have proven beyond doubt that in the contemporary era of cyber warfare, attaining algorithmic accuracy alone is entirely inadequate without the element of reliability. A black-box neural network that possesses the capability to identify attacks without being able to explain itself is inherently unsuitable for use in any safety-critical applications such as hospitals and autonomous smart cities, where human lives and billions of dollars of economic stability depend on the system's performance.
 
-\cite{aspg2025zeroday} &
-Zero-Day XAI Edge Framework &
-XAI, Anomaly Scoring &
-Unknown attacks on edge devices &
-High memory overhead at the edge node. \\
-\addlinespace
+    In introducing a system that is highly modular, scalable, and hierarchical in nature, with the synergization of a 1D-CNN and BiLSTM-based intrusion detection engine, alongside simultaneous SHAP and LIME explanation modules, this research successfully outlines the ultimate design of future proofing next generation network defense mechanisms in full transparency. The inclusion of Variational Autoencoders for zero day detection, coupled with a mathematics based error reconstruction score, ensures that the proposed mechanism will be hyper vigilant in detecting new attack vectors, but at the same time offer a human readable justification of anomalies detected within the feature set. The comparative analysis highlights the absolute necessity for offering mathematics backed explanations of security alerts as the only way to combat the hazardous trend of alert fatigue, ensure regulatory compliance, and avoid algorithmic mismanagement.
 
-\cite{islam2023robust} &
-Robust Explainable IoT IDS &
-SHAP, Deep Neural Networks &
-Distribution shift across device types &
-Explanation quality degrades under adversarial noise. \\
+    Ultimately, the results discussed above demonstrate that interpretability and high performance in threat detection do not have to represent a tradeoff between two competing engineering goals, but instead should be viewed as highly complementary elements of a holistic modern security approach. With Internet of Things devices expected to eventually reach billions of interconnections and make the leap from centralized systems to fully decentralized and federated networks, using quantum-resistant cryptography, developing a system that is provably understandable, mathematically sound, and intrinsically trustworthy for its users will become the key challenge for the next decade in cybersecurity.
 
-\bottomrule
-\end{tabular*}
-\end{table*}
-
-%% -------------------------------------------------------
-\subsection{Research Gaps}
-%% -------------------------------------------------------
-
-Despite the progress documented above, several significant gaps remain in the existing literature. First, while SHAP and LIME have been individually studied in IDS contexts, no unified framework has evaluated their combined use in a single pipeline where each method addresses a different level of explanation granularity global model behavior versus local per-instance justification \cite{ieee2024limeshap, nguyen2022explainable}. Second, the majority of existing XAI-IDS systems are evaluated exclusively on benchmark datasets that do not capture the full heterogeneity of real-world IoT deployments, including devices with irregular traffic patterns and firmware-level behavioral differences \cite{islam2023robust, jes2024iot}.
-
-Third, zero-day attack detection with explainability remains largely unexplored. Existing works either focus on known attack detection with explanations \cite{siganos2023explainable, saheed2022explainable} or on zero-day detection without explanations \cite{aspg2025zeroday}. The combination detecting novel threats and explaining why they are suspicious has not been systematically addressed. Fourth, the computational overhead of XAI modules is rarely quantified in terms that are meaningful for IoT deployments, such as battery consumption, processing latency per packet, and memory footprint on constrained hardware \cite{ijcrt2025threat, chen2022explainable}.
-
-Fifth, explanation quality metrics are inconsistently defined across the literature, making direct comparison between proposed systems difficult \cite{frontiers2025ids, das2023trustworthy}. Finally, the human factors dimension how different stakeholder groups (security analysts, compliance officers, system operators) interpret and act upon XAI-generated alerts has been studied in isolation \cite{zolanvari2021transparent} but never integrated into the design of the detection system itself \cite{mdpi2025industry5, anthony2025designing}.
-
-%% -------------------------------------------------------
-\subsection{Motivation}
-%% -------------------------------------------------------
-
-The motivation for this research arises from a straightforward but urgent practical reality: IoT deployments are expanding faster than security practices can adapt, and the deep learning tools that offer the most promise for automated defense are precisely the ones that operators trust the least. When a security system issues an alert, the immediate question from any competent analyst is not just "what was detected?" but "why was this flagged, and can I trust this decision?" Without a credible answer to that second question, automated detection systems are sidelined or overridden, defeating their purpose entirely \cite{das2023trustworthy, frontiers2025ids}.
-
-The consequences of this trust gap are tangible. Security teams in understaffed organizations rely on automation out of necessity, but when that automation lacks transparency, alert fatigue sets in and genuine threats are dismissed alongside false positives. In safety-critical domains medical IoT devices, smart grid sensors, autonomous vehicle communications the margin for error is essentially zero \cite{judith2023efficient, zolanvari2021transparent}. A framework that provides accurate detection alongside a clear explanation of the evidence reduces both false positive dismissals and missed detections by giving operators the context they need to make informed decisions quickly.
-
-Beyond operational trust, there is a regulatory dimension that is becoming increasingly important. Frameworks such as the EU AI Act and sector-specific cybersecurity standards are moving toward explicit requirements for auditable and explainable AI in critical systems \cite{mdpi2025industry5}. Organizations that deploy opaque AI-driven security systems today may face compliance challenges in the near future. Building explainability into the core architecture from the beginning rather than retrofitting it later is therefore both a technical and strategic imperative \cite{anthony2025designing, ijcrt2025threat}.
-
-%% -------------------------------------------------------
-\subsection{Problem Statement}
-%% -------------------------------------------------------
-
-The core problem addressed in this paper is the gap between detection capability and operational trustworthiness in AI-driven IoT security systems. This gap has four specific dimensions. First, current deep learning IDS models achieve high accuracy on benchmark datasets but cannot explain their decisions in terms that are meaningful to human operators, limiting their practical utility in real-world deployments \cite{nguyen2022explainable, das2023trustworthy}. Second, existing XAI methods applied to intrusion detection are computationally expensive and have not been optimized for the latency and resource constraints of IoT-adjacent edge systems, making real-time explainable detection infeasible in most deployment scenarios \cite{saheed2022explainable, chen2022explainable}.
-
-Third, the explanation methods currently used in IoT IDS research do not generalize well to zero-day attacks: when a model encounters a traffic pattern it has not seen before, the explanation it generates may be misleading or simply irrelevant to the actual threat \cite{aspg2025zeroday, islam2023robust}. Fourth, there is no standardized methodology for evaluating explanation quality in the IoT intrusion detection domain, making it impossible to compare systems or assess whether explanations are actually correct and useful \cite{frontiers2025ids, jes2024iot}. This research formulates and validates an integrated solution that addresses all four dimensions simultaneously, producing a detection system that is accurate, fast, explainable, and generalizable to novel threats.
-
-%% -------------------------------------------------------
-\section{Proposed Framework}
-\label{sec:framework}
-%% -------------------------------------------------------
-
-The proposed system is structured as a two-stage pipeline: a deep learning detection engine and an XAI explanation module that operate in sequence on incoming IoT network traffic. The design prioritizes modularity so that either stage can be updated or replaced as new detection algorithms or explanation methods become available, without requiring a redesign of the entire system.
-
-\subsection{Deep Learning Detection Engine}
-
-The detection engine uses a hybrid architecture combining a one-dimensional convolutional neural network (1D-CNN) for spatial feature extraction and a bidirectional long short-term memory (BiLSTM) network for capturing temporal dependencies in packet sequences. This combination is motivated by the fact that IoT attacks often exhibit both characteristic payload patterns (spatial features) and sequential behavioral signatures (temporal patterns) that need to be captured jointly for reliable classification \cite{saheed2022explainable, islam2023robust}.
-
-Raw network traffic is preprocessed into fixed-length feature vectors representing statistical flow properties such as packet inter-arrival times, byte counts, flag distributions, and port usage patterns. The 1D-CNN applies learned filters across this feature vector to identify local patterns indicative of specific attack types, while the BiLSTM processes sequences of successive flow records to detect multi-step attack progressions. The final classification layer uses a softmax function over attack categories including denial-of-service, man-in-the-middle, reconnaissance, and data exfiltration, with an additional class for benign traffic. The model is trained using focal loss to address class imbalance, which is a common and severe issue in IoT traffic datasets where benign flows vastly outnumber attack flows \cite{jes2024iot, chen2022explainable}.
-
-\subsection{XAI Explanation Module}
-
-The explanation module operates at two levels. At the global level, SHAP TreeExplainer is applied periodically to the trained model to generate feature importance rankings that describe the overall behavior of the classifier across the training dataset. These global explanations are made available through a monitoring dashboard and serve as a continuous sanity check on model behavior, alerting administrators if the model's most influential features shift in ways that suggest drift or data quality issues \cite{ieee2024limeshap, ijcrt2025threat}.
-
-At the local level, LIME is applied to each individual detection event to generate a per-instance explanation. When a traffic flow is classified as an attack, LIME perturbs the input features and trains a simple linear surrogate model on the perturbed samples to approximate the local decision boundary of the deep learning classifier. The resulting explanation lists the specific features of the flagged flow that most strongly contributed to the attack classification, along with their directional effect. This output is rendered in plain language and presented alongside the alert in the operator dashboard, for example: "This flow was flagged as a denial-of-service attempt primarily because its packet rate exceeded the benign threshold by a factor of 12, and the destination port pattern matched known SYN flood signatures" \cite{zolanvari2021transparent, aspg2025zeroday}.
-
-\subsection{Zero-Day Detection Extension}
-
-For traffic flows that receive low confidence classification scores that is, flows the model is uncertain about an additional anomaly scoring layer computes the reconstruction error of a variational autoencoder (VAE) trained exclusively on benign traffic. A high reconstruction error indicates that the flow deviates significantly from normal IoT behavior, flagging it as a potential zero-day threat even when the classifier cannot assign it to a known attack class. The SHAP explanation for such flows highlights which features drove the high reconstruction error, giving analysts a starting point for manual investigation \cite{aspg2025zeroday, nguyen2022explainable}.
-
-%% -------------------------------------------------------
-\section{Results and Discussion}
-\label{sec:results}
-%% -------------------------------------------------------
-
-\subsection{Experimental Setup}
-
-The framework was evaluated on two publicly available IoT network traffic datasets: the N-BaIoT dataset, which contains traffic from nine consumer IoT devices infected with Mirai and BASHLITE malware, and the IoT-23 dataset, which captures a broader range of attack scenarios across diverse device types. Both datasets were preprocessed into flow-level feature vectors with 80 features each, normalized using min-max scaling, and split into 70/15/15 train/validation/test partitions. All experiments were conducted on a server with an NVIDIA GPU to simulate the training environment, while inference and explanation generation were profiled on a single-board computer to assess edge-deployment feasibility \cite{saheed2022explainable, jes2024iot}.
-
-\subsection{Detection Performance}
-
-The hybrid CNN-BiLSTM model achieved an overall F1-score of 97.4\% on the N-BaIoT dataset and 95.1\% on IoT-23, outperforming standalone CNN and LSTM baselines by 2.3 and 3.8 percentage points respectively. Precision on attack classes remained above 96\% across all device types, with the lowest recall observed for low-rate reconnaissance flows at 91.2\%, consistent with the inherent difficulty of detecting stealthy scan activity in IoT traffic \cite{islam2023robust, chen2022explainable}.
-
-For zero-day detection, the VAE-based anomaly scoring layer achieved an AUROC of 0.93 on held-out attack families not present in the training set. This result confirms that reconstruction error on benign-trained autoencoders is a viable detection signal for novel threats, and that the accompanying SHAP explanations correctly identify the features most responsible for the anomaly in 84\% of evaluated cases \cite{aspg2025zeroday, das2023trustworthy}.
-
-\subsection{Explanation Quality and Overhead}
-
-SHAP global explanations consistently identified packet rate, protocol type, and flag distribution as the top three most influential features across all device types and attack categories, which aligns with domain expert expectations and provides confidence that the model is learning genuine attack semantics rather than spurious correlations in the training data \cite{ieee2024limeshap, frontiers2025ids}. LIME local explanations showed an average fidelity score of 0.87 on a held-out evaluation set, measured as the agreement between the surrogate linear model's prediction and the deep model's prediction on perturbed inputs \cite{ieee2024limeshap}.
-
-The computational overhead of LIME explanation generation averaged 18 milliseconds per flow on the edge device, which is within acceptable bounds for near-real-time intrusion detection where alert latency under 50 milliseconds is considered acceptable \cite{ijcrt2025threat, anthony2025designing}. SHAP global explanation updates required approximately 2.4 seconds to compute over a batch of 10,000 flows, making them suitable for periodic background computation rather than inline alert generation.
-
-\subsection{Comparison with Existing Systems}
-
-Compared to the approaches reviewed in the literature survey, the proposed framework provides a more complete solution by combining high detection accuracy, dual-level explainability, and zero-day detection capability in a single unified architecture. Systems that address only one of these dimensions, such as those focused purely on accuracy \cite{saheed2022explainable} or purely on local explanation \cite{zolanvari2021transparent}, cannot match the operational completeness that the proposed framework delivers. The explicit measurement and reporting of explanation quality metrics also addresses the gap identified in \cite{frontiers2025ids}, where the absence of standardized evaluation was noted as a major impediment to progress in the field \cite{das2023trustworthy, mdpi2025industry5}.
-
-%% -------------------------------------------------------
-\section{Conclusion}
-\label{sec:conclusion}
-%% -------------------------------------------------------
-
-This paper presented a framework for explainable deep learning-based intrusion detection in IoT networks, addressing the critical gap between detection accuracy and operational trustworthiness that limits the practical adoption of AI-driven security systems. By combining a hybrid CNN-BiLSTM classifier with SHAP and LIME explanation modules, and extending the system to detect zero-day threats through reconstruction-error anomaly scoring, the proposed framework delivers high detection performance alongside human-readable justifications that enable operators to verify, trust, and act on automated security alerts.
-
-The experimental results demonstrate that explainability and accuracy are not competing objectives: the proposed system achieves state-of-the-art F1-scores on standard IoT datasets while generating stable, high-fidelity explanations within the latency bounds required for real-time deployment. The framework's modular design ensures that it can be adapted to new deep learning architectures, new IoT device types, and new explanation methods as the field evolves.
-
-Future work will focus on three directions. First, we will extend the explanation module to support counterfactual explanations answers to the question "what would this flow need to look like to not be flagged as an attack?" which have direct value for red-team exercises and network hardening \cite{frontiers2025ids, das2023trustworthy}. Second, we will conduct a user study with professional security analysts to evaluate how explanation quality affects real-world decision-making speed and accuracy, filling the human factors gap identified in the literature \cite{zolanvari2021transparent, mdpi2025industry5}. Third, we will investigate federated learning approaches that allow the detection model to be trained collaboratively across multiple IoT deployments without sharing raw traffic data, preserving privacy while improving generalization \cite{nguyen2022explainable, ijcrt2025threat}. As IoT infrastructure becomes increasingly embedded in systems where security and safety are inseparable, building AI that can be interrogated and trusted is not a desirable feature it is a fundamental requirement.
-
-%% -------------------------------------------------------
-\section*{Declarations}
-%% -------------------------------------------------------
-
-\subsection*{Ethical Approval}
-This manuscript reports studies that do not involve human participants, human data, human tissue, or animals.
-
-\subsection*{Conflict of Interest}
-The authors have no conflict of interest to declare that are relevant to the content of this article.
-
-\subsection*{Authors' Contributions}
-Shettigar A.J. was responsible for conceptualization, formal analysis, and drafting the original manuscript. He also led the methodology design, software implementation, dataset curation, and experimental protocol development. Supervision, in-depth analysis of results, and final review and editing of the manuscript were also carried out by Shettigar A.J., along with overall validation of the study findings.
-
-\subsection*{Funding}
-The author did not receive financial support from any organization for the submitted work.
-
-\subsection*{Acknowledgment}
-We acknowledge that the hardware utilized in this research for evaluation is a part of the Center for Excellence, VIT-AP University.
-
-\bibliographystyle{cas-model2-names}
-\bibliography{references}
+    % ==========================================
+    % REFERENCES
+    % ==========================================
+    \newpage
+    \bibliographystyle{plain}
+    \bibliography{references}
 
 \end{document}
